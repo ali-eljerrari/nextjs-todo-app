@@ -1,8 +1,10 @@
+import SharedCard from "@/components/shared/SharedCard";
+
 export default function Home() {
   return (
     <>
-      <main>
-        <h1>Hello World!</h1>
+      <main className="w-screen h-screen">
+        <SharedCard />
       </main>
     </>
   );
