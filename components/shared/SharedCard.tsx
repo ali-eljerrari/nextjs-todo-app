@@ -34,7 +34,7 @@ const SharedCard = () => {
       <Accordion
         type="single"
         collapsible
-        style={{ width: "100%", height: "70vh", overflowY: "scroll" }}
+        className="w-full h-[70vh] overflow-y-scroll"
       >
         {todos?.map((todo, index) => {
           return <AcordionItem key={index} data={todo} />;
@@ -44,7 +44,7 @@ const SharedCard = () => {
   };
 
   return (
-    <Card style={{ width: "100%", height: "100%", margin: "auto" }}>
+    <Card className="w-full md:w-[70%] h-full mx-auto md:min-w-[650px] md:max-w-[700px]">
       <CardHeader>
         <CardTitle>Nextjs Todo App</CardTitle>
         <CardDescription>
