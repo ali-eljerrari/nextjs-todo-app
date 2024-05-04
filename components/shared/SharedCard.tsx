@@ -44,7 +44,7 @@ const SharedCard = () => {
   };
 
   return (
-    <Card className="w-full md:w-[70%] h-full mx-auto md:min-w-[650px] md:max-w-[700px]">
+    <Card className="w-full lg:min-w-[900px] h-full mx-auto lg:max-w-[60%]">
       <CardHeader>
         <CardTitle>Nextjs Todo App</CardTitle>
         <CardDescription>
