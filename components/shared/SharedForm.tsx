@@ -4,34 +4,32 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 
 import { z } from "zod";
 
 import { setDBTodos } from "@/lib/actions/appwrite.actions";
-import { Todo, propsType } from "@/typings";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
-  name: z.string().min(3).max(64).trim(),
+  name: z.string().min(1).max(64),
+  description: z.string().min(1).max(64),
 });
 
-const SharedForm = ({ setTodos, todos }: propsType) => {
-  const [todo, setTodo] = useState<Todo | null>(null);
-
+const SharedForm = () => {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      description: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setTodo({
+    const todo = {
       // $collectionId: "", // Fill this with appropriate values
       // $databaseId: "", // Fill this with appropriate values
       // $id: "", // Fill this with appropriate values
@@ -40,63 +38,105 @@ const SharedForm = ({ setTodos, todos }: propsType) => {
       // completedAt: null,
       // $createdAt: "", // Fill this with appropriate values
       isDone: false,
-      createdAt: new Date(),
       name: values.name,
-    });
-  }
+      description: values.description,
+    };
 
-  useEffect(() => {
-    if (todo?.name) {
-      //? push todos to the database
+    console.log(todo);
 
-      setDBTodos(todo).then(
-        (response) => {
-          toast({
-            variant: "default",
-            title: "Success!",
-            description: "Todo addedd Successfully!",
-            className: "bg-green-900 text-white",
-            duration: 5000,
-          });
-
-          setTodos([...todos, todo]);
-
-          //? form reset
-          form.reset();
-        },
-        (error) => {
-          toast({
-            variant: "destructive",
-            title: "Error!",
-            description: error.message,
-            duration: 5000,
-          });
-        }
-      );
+    if (!todo?.name.length || !todo?.description.length) {
+      toast({
+        variant: "destructive",
+        title: "Error!",
+        description: "Please fill all the fields!",
+        duration: 5000,
+      });
+      return;
+    }
+    if (todo?.name.length > 64) {
+      toast({
+        variant: "destructive",
+        title: "Error!",
+        description: "name should remain within 64 characters or less!",
+        duration: 5000,
+      });
+      return;
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todo]);
+    if (todo?.description.length > 256) {
+      toast({
+        variant: "destructive",
+        title: "Error!",
+        description: "description should remain within 256 characters or less!",
+        duration: 5000,
+      });
+      return;
+    }
+
+    //? push todos to the database
+    setDBTodos(todo).then(
+      (_response) => {
+        toast({
+          variant: "default",
+          title: "Success!",
+          description: "Todo addedd Successfully!",
+          className: "bg-green-900 text-white",
+          duration: 5000,
+        });
+
+        //? form reset
+        form.reset();
+      },
+      (error) => {
+        toast({
+          variant: "destructive",
+          title: "Error!",
+          description: error.message,
+          duration: 5000,
+        });
+      }
+    );
+  }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Input
-                  placeholder="Type Todo..."
-                  {...field}
-                  className="flex-1"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Add Todo</Button>
+        <div className="flex flex-col w-full">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Input
+                    placeholder="Type Todo..."
+                    {...field}
+                    className="flex-1 py-6"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Input
+                    placeholder="Type Description..."
+                    {...field}
+                    className="flex-1 py-8"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" size={"stretchY"}>
+          Add Todo
+        </Button>
+        {/* //TODO add filter button (ASC & DESC) */}
       </form>
       <Toaster />
     </Form>

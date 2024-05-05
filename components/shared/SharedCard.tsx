@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDBTodos } from "@/lib/actions/appwrite.actions";
+import { client } from "@/lib/config/appwrite/config";
 import { Todo } from "@/typings";
 import { useEffect, useState } from "react";
 import { Accordion } from "../ui/accordion";
@@ -34,11 +35,21 @@ const SharedCard = () => {
           $permissions: document.$permissions,
           $updatedAt: document.$updatedAt,
           completedAt: document.completedAt,
-          createdAt: document.createdAt,
           isDone: document.isDone,
           name: document.name,
+          description: document.description,
         }));
-        setTodos(todosData);
+
+        const sortedTodos = todosData.sort((a, b) => {
+          const adate = new Date(a.$createdAt!);
+          const bdate = new Date(b.$createdAt!);
+          const amsPassed = Date.now() - adate.getTime();
+          const bmsPassed = Date.now() - bdate.getTime();
+
+          return amsPassed - bmsPassed;
+        });
+
+        setTodos(sortedTodos);
       })
       .catch((error) => {
         toast({
@@ -52,14 +63,56 @@ const SharedCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = client.subscribe(
+      "documents",
+      (response: { payload: Todo; events: any }) => {
+        //? delete
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.delete"
+          )
+        ) {
+          setTodos((prevTodos) =>
+            prevTodos.filter((todo) => todo.$id !== response.payload.$id)
+          );
+        }
+
+        //? create
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.create"
+          )
+        ) {
+          setTodos((prevTodos) => [response.payload, ...prevTodos]);
+        }
+
+        //? update
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.update"
+          )
+        ) {
+          //! filter the previous todo when it gets updated and it will be retrieved from the subscription
+          //? insert the new todo
+          setTodos((prevTodos) => [...prevTodos, response.payload]);
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe(); // Clean up subscription
+    };
+  }, [todos]);
+
   const ShowTodos = () => {
     if (!todos.length) {
       return (
-        <div className="flex flex-col w-full overflow-y-scroll h-[78vh] px-4">
-          {Array.from({ length: 10 }, (v, i) => {
+        <div className="flex flex-col w-full overflow-y-auto h-[78vh] px-4">
+          {Array.from({ length: 10 }, (_v, i) => {
             return (
               <div key={i} className="space-y-2 my-2 w-full">
-                {Array.from({ length: 2 }, (v, i) => {
+                {Array.from({ length: 2 }, (_v, i) => {
                   return (
                     <Skeleton
                       key={i}
@@ -98,7 +151,7 @@ const SharedCard = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SharedForm setTodos={setTodos} todos={todos} />
+        <SharedForm />
       </CardContent>
       <CardFooter>{ShowTodos()}</CardFooter>
       <Toaster />
