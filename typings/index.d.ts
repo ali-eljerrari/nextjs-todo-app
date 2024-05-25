@@ -2,11 +2,11 @@ export type Todo = {
   $collectionId?: string;
   $createdAt?: Date;
   $databaseId?: string;
-  $id?: string | undefined;
+  $id?: string;
   $permissions?: [];
   $updatedAt?: Date;
   completedAt?: Date;
-  isDone?: boolean;
+  isDone: boolean;
   name: string;
   description: string;
 };

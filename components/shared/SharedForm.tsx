@@ -100,39 +100,39 @@ const SharedForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex">
-        <div className="flex flex-col w-full">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Input
-                    placeholder="Type Todo..."
-                    {...field}
-                    className="flex-1 py-6"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <Input
-                    placeholder="Type Description..."
-                    {...field}
-                    className="flex-1 py-8"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+        {/* <div className="flex flex-col w-full"> */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="w-full mb-2">
+              <FormControl>
+                <Input
+                  placeholder="Type Todo..."
+                  {...field}
+                  className="flex-1 py-6"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem className="w-full mb-2">
+              <FormControl>
+                <Input
+                  placeholder="Type Description..."
+                  {...field}
+                  className="flex-1 py-8"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* </div> */}
         <Button type="submit" size={"stretchY"}>
           Add Todo
         </Button>

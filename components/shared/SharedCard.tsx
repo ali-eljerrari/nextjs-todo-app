@@ -60,6 +60,7 @@ const SharedCard = () => {
           duration: 5000,
         });
       });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -93,9 +94,13 @@ const SharedCard = () => {
             "databases.*.collections.*.documents.*.update"
           )
         ) {
-          //! filter the previous todo when it gets updated and it will be retrieved from the subscription
-          //? insert the new todo
-          setTodos((prevTodos) => [...prevTodos, response.payload]);
+          setTodos(
+            todos.map((prevTodo) =>
+              prevTodo.$id === response.payload.$id
+                ? { ...response.payload }
+                : prevTodo
+            )
+          );
         }
       }
     );
@@ -108,7 +113,7 @@ const SharedCard = () => {
   const ShowTodos = () => {
     if (!todos.length) {
       return (
-        <div className="flex flex-col w-full overflow-y-auto h-[78vh] px-4">
+        <div className="flex flex-col w-full overflow-y-auto h-[70vh] px-4">
           {Array.from({ length: 10 }, (_v, i) => {
             return (
               <div key={i} className="space-y-2 my-2 w-full">
@@ -132,7 +137,7 @@ const SharedCard = () => {
       <Accordion
         type="single"
         collapsible
-        className="w-full h-[70vh] overflow-y-scroll"
+        className="w-full h-[70vh] overflow-y-auto"
       >
         {todos?.map((todo, index) => {
           return <AcordionItem key={index} data={todo} />;
@@ -145,7 +150,7 @@ const SharedCard = () => {
     <Card className="w-full lg:min-w-[900px] h-full mx-auto lg:max-w-[60%]">
       <CardHeader>
         <CardTitle>Nextjs Todo App</CardTitle>
-        <CardDescription>
+        <CardDescription className="hidden sm:block">
           Next.js Todo App: Your go-to for seamless task management, combining
           React&apos;s power with intuitive UI for effortless organization.
         </CardDescription>
